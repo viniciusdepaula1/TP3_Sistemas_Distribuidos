@@ -88,9 +88,22 @@ public class PubSubClient { // recebe e publica
 		msgUnlock.setBrokerId(brokerPort);
 		msgUnlock.setType("unlock");
 		msgUnlock.setContent("Unlock " + message);
+		Client publisher = null;
 
-		Client publisher = new Client(brokerAddress, brokerPort);
-		publisher.sendReceive(msgUnlock);
+		try {
+			publisher = new Client(brokerAddress, brokerPort);
+		} catch (Exception e) {
+            
+		}
+
+		Message received = publisher.sendReceive(msgUnlock);
+
+		if (received.getType().equals("backup")) {
+            brokerAddress = received.getContent().split(":")[0];
+            brokerPort = Integer.parseInt(received.getContent().split(":")[1]);
+            publisher = new Client(brokerAddress, brokerPort);
+            publisher.sendReceive(msgUnlock);
+        }
 		// Message received = publisher.sendReceive(msgUnlock);
 	}
 
@@ -139,6 +152,13 @@ public class PubSubClient { // recebe e publica
 
 		Client publisher = new Client(brokerAddress, brokerPort);
 		Message received = publisher.sendReceive(msgPub); // não saio até eu receber a resposta do broker
+
+		if (received.getType().equals("backup")) {
+            brokerAddress = received.getContent().split(":")[0];
+            brokerPort = Integer.parseInt(received.getContent().split(":")[1]);
+            publisher = new Client(brokerAddress, brokerPort);
+            publisher.sendReceive(msgPub);
+        }
 
 		// System.out.println(received.getLogId()); //id na minha maquina
 		// System.out.println(received.getType());

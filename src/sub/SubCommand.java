@@ -9,7 +9,7 @@ import core.MessageImpl;
 import core.PubSubCommand;
 import core.client.Client;
 
-public class SubCommandTwo implements PubSubCommand {
+public class SubCommand implements PubSubCommand {
 
 	@Override
 	public Message execute(Message m, SortedSet<Message> log, Set<String> subscribers, boolean isPrimary,
