@@ -21,6 +21,7 @@ public class PubSubConsumer<S extends Socket> extends GenericConsumer<S> {
     private boolean isPrimary;
     private String secondaryServer;
     private int secondaryPort;
+    private boolean secActivity = false;
 
     public PubSubConsumer(GenericResource<S> re, boolean isPrimary, String secondaryServer, int secondaryPort) {
         super(re);
@@ -44,6 +45,14 @@ public class PubSubConsumer<S extends Socket> extends GenericConsumer<S> {
 
             Message response = null;
 
+            String[] secMessage = msg.getType().split(" ");
+
+            if(secMessage[0].equals("sec")){
+                System.out.println("entrei sec");
+                this.isPrimary = !isPrimary;
+                msg.setType(secMessage[1]);
+            }
+
             if (!isPrimary && !msg.getType().startsWith("sync")) {
 
                 //Client client = new Client(secondaryServer, secondaryPort);
@@ -52,16 +61,18 @@ public class PubSubConsumer<S extends Socket> extends GenericConsumer<S> {
                 response = new MessageImpl();
                 response.setType("backup");
                 response.setContent(secondaryServer + ":" + secondaryPort);
-
+                
             } else {
                 if (!msg.getType().equals("notify") && !msg.getType().startsWith("sync"))
                     msg.setLogId(uniqueLogId);
 
-                response = commands.get(msg.getType()).execute(msg, log, subscribers, isPrimary, secondaryServer, secondaryPort);
+                response = commands.get(msg.getType()).execute(msg, log, subscribers, isPrimary, secondaryServer, secondaryPort, secActivity);
 
                 if (!msg.getType().equals("notify")) //&& !msg.getType().startsWith("sync"))
                     uniqueLogId = msg.getLogId();
+
             }
+
 
             ObjectOutputStream out = new ObjectOutputStream(str.getOutputStream());
             out.writeObject(response);

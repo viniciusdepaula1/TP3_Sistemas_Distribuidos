@@ -2,6 +2,7 @@ package core.client;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -12,16 +13,16 @@ public class Client {
 
     private Socket s;
 
-    public Client(String ip, int port) {
+    public Client(String ip, int port) throws IOException{
         try {
             s = new Socket(ip, port);
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("Client cannot connect with " + ip + " on port: " + port);
-
+            throw e;
         }
     }
 
-    public Message sendReceive(Message msg) {
+    public Message sendReceive(Message msg) throws IOException{
         try {
             ObjectOutputStream out = new ObjectOutputStream(new BufferedOutputStream(s.getOutputStream()));
             out.writeObject(msg);
@@ -34,9 +35,14 @@ public class Client {
             out.close();
             s.close();
             return response;
-        } catch (Exception e) {
-            return null;
+        } catch (IOException e) {
+            System.out.println("Client cannot send/receive");
+            throw e;
         }
+        catch (ClassNotFoundException e) {
+			System.out.println("Class exception");
+			return null;
+		}
     }
 
 }

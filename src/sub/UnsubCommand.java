@@ -12,7 +12,7 @@ public class UnsubCommand implements PubSubCommand {
 
   @Override
   public Message execute(Message m, SortedSet<Message> log, Set<String> subscribers, boolean isPrimary,
-      String sencondaryServerAddress, int secondaryServerPort) {
+      String sencondaryServerAddress, int secondaryServerPort, boolean secActivity) {
 
     Message response = new MessageImpl();
 

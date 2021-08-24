@@ -13,7 +13,7 @@ public class SubCommand implements PubSubCommand {
 
 	@Override
 	public Message execute(Message m, SortedSet<Message> log, Set<String> subscribers, boolean isPrimary,
-			String sencondaryServerAddress, int secondaryServerPort) {
+			String sencondaryServerAddress, int secondaryServerPort, boolean secActivity) {
 
 		Message response = new MessageImpl();
 
@@ -57,14 +57,19 @@ public class SubCommand implements PubSubCommand {
 				// como vou bloquead o acesso? dentro de pub (string personalisada pro acquire)?
 				String[] ipAndPort = m.getContent().split(":");
 				while (it.hasNext()) {
-					Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
-					Message msg = it.next();
-					Message aux = new MessageImpl();
-					aux.setType("notify");
-					aux.setContent(msg.getContent());
-					aux.setLogId(msg.getLogId());
-					aux.setBrokerId(m.getBrokerId());
-					Message cMsg = client.sendReceive(aux);
+					Message cMsg = null;
+					
+					try {
+						Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
+						Message msg = it.next();
+						Message aux = new MessageImpl();
+						aux.setType("notify");
+						aux.setContent(msg.getContent());
+						aux.setLogId(msg.getLogId());
+						aux.setBrokerId(m.getBrokerId());
+						cMsg = client.sendReceive(aux);
+					} catch (Exception e) {}
+		
 					if (cMsg == null) {
 						subscribers.remove(m.getContent());
 						break;

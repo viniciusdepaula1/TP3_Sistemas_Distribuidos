@@ -3,6 +3,7 @@ package pub;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Iterator;
 
 import core.Message;
 import core.MessageImpl;
@@ -13,7 +14,7 @@ public class PubCommand implements PubSubCommand {
 
 	@Override
 	public Message execute(Message m, SortedSet<Message> log, Set<String> subscribers, boolean isPrimary,
-			String sencondaryServerAddress, int secondaryServerPort) {
+			String sencondaryServerAddress, int secondaryServerPort, boolean secActivity) {
 
 		Message response = new MessageImpl();
 		int logId = m.getLogId();
@@ -51,9 +52,14 @@ public class PubCommand implements PubSubCommand {
 		subscribersCopy.addAll(subscribers);
 		for (String aux : subscribersCopy) {
 			String[] ipAndPort = aux.split(":");
-			Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
-			msg.setBrokerId(m.getBrokerId()); // manda e espera
-			Message cMsg = client.sendReceive(msg); // se não recebeu vai ser null e ele tira da lista de sub
+			Message cMsg = null;
+
+			try {
+				Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
+				msg.setBrokerId(m.getBrokerId()); // manda e espera
+				cMsg = client.sendReceive(msg); // se não recebeu vai ser null e ele tira da lista de sub
+			} catch (Exception e) { }
+
 			if (cMsg == null) {
 				System.out.println("Publish service is not proceed... " + msg.getContent());
 				subscribers.remove(aux);
@@ -66,6 +72,16 @@ public class PubCommand implements PubSubCommand {
 		response.setContent("Message published: " + m.getContent());
 		response.setType("pub_ack");
 
+
+		System.out.println("Logs pub");
+
+		Iterator<Message> it = log.iterator();
+		System.out.println("logs até o momento");
+		while(it.hasNext()){
+			Message aux = it.next();
+			System.out.print(aux.getLogId() + " " + aux.getContent() + " | ");
+		}
+		System.out.println(" ");
 		// depois de publicar pra geral eu sou notificado
 
 		// se for no accquire manda mensagem de envio avisando q pode usar
