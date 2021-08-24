@@ -149,7 +149,12 @@ public class PubSubClient { // recebe e publica
 			received = publisher.sendReceive(msgUnlock);			
 		} catch (Exception e) {
 			System.out.println("entrei");
-			toSecundary(msgUnlock.getType(), msgUnlock.getContent());
+			try {
+				toSecundary(msgUnlock.getType(), msgUnlock.getContent());
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 	
@@ -228,7 +233,7 @@ public class PubSubClient { // recebe e publica
 		return verificaVez(received.getLogId(), var);
 	}
 
-	public void toSecundary(String typeMessage, String contentMessage) {
+	public void toSecundary(String typeMessage, String contentMessage) throws InterruptedException {
 		if(primaryActivity) {
 			primaryActivity = false;
 			this.brokerIp = secundaryBrokerIp;
@@ -239,11 +244,19 @@ public class PubSubClient { // recebe e publica
 			this.brokerPort = primaryBrokerPort;
 		}
 
-		subscribe("sec ");
+		//stopPubSubClient();
+
+		Thread.sleep(1000);
+
+		//observer = new Server(this.clientPort);
+		//clientThread = new ThreadWrapper(observer);
+		//clientThread.start();
+
+		//subscribe("sec ");
 
 		Message msgToSec = new MessageImpl();
 		msgToSec.setBrokerId(this.brokerPort);
-		msgToSec.setType(typeMessage);
+		msgToSec.setType("sec " + typeMessage);
 		msgToSec.setContent(contentMessage);
 
 		try {

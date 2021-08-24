@@ -35,10 +35,10 @@ public class Broker {
         ThreadWrapper brokerThread = new ThreadWrapper(s);
         brokerThread.start();
 
-        if(respBol == false){
+        if(!respBol){
             Message msgBroker = new MessageImpl();
             msgBroker.setBrokerId(port);
-            msgBroker.setType("syncBackup");
+            msgBroker.setType("wakeup syncBackup");
             msgBroker.setContent(secondAddress.toString());
             
             try {

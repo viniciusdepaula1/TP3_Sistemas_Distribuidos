@@ -21,24 +21,25 @@ public class UnlockCommand implements PubSubCommand {
 
 		response.setLogId(logId);
 		m.setLogId(logId);
-
-		try {
-			// sincronizar com o broker backup
-			Message syncPubMsg = new MessageImpl();
-			syncPubMsg.setBrokerId(m.getBrokerId());
-			syncPubMsg.setContent(m.getContent());
-			syncPubMsg.setLogId(m.getLogId());
-			syncPubMsg.setType("syncPub");
-
-			Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
-			syncPubMsg = clientBackup.sendReceive(syncPubMsg);
-			System.out.println(syncPubMsg.getContent());
-
-		} catch (Exception e) {
-			System.out.println("Cannot sync with backup - publish service");
-		}
-
 		log.add(m);
+
+		if(secActivity){
+			try {
+				// sincronizar com o broker backup
+				Message syncPubMsg = new MessageImpl();
+				syncPubMsg.setBrokerId(m.getBrokerId());
+				syncPubMsg.setContent(m.getContent());
+				syncPubMsg.setLogId(m.getLogId());
+				syncPubMsg.setType("syncPub");
+	
+				Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
+				syncPubMsg = clientBackup.sendReceive(syncPubMsg);
+				System.out.println(syncPubMsg.getContent());
+	
+			} catch (Exception e) {
+				System.out.println("Cannot sync with backup - unlock service");
+			}
+		}
 
 		Message msg = new MessageImpl();
 		msg.setContent(m.getContent()); // posso verificar o tipo de conteudo

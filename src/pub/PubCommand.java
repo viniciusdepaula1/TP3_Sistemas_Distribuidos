@@ -22,24 +22,25 @@ public class PubCommand implements PubSubCommand {
 
 		response.setLogId(logId);
 		m.setLogId(logId);
-
-		try {
-			// sincronizar com o broker backup
-			Message syncPubMsg = new MessageImpl();
-			syncPubMsg.setBrokerId(m.getBrokerId());
-			syncPubMsg.setContent(m.getContent());
-			syncPubMsg.setLogId(m.getLogId());
-			syncPubMsg.setType("syncPub");
-
-			Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
-			syncPubMsg = clientBackup.sendReceive(syncPubMsg);
-			System.out.println(syncPubMsg.getContent());
-
-		} catch (Exception e) {
-			System.out.println("Cannot sync with backup - publish service");
-		}
-
 		log.add(m);
+
+		if(secActivity) {
+			try {
+				// sincronizar com o broker backup
+				Message syncPubMsg = new MessageImpl();
+				syncPubMsg.setBrokerId(m.getBrokerId());
+				syncPubMsg.setContent(m.getContent());
+				syncPubMsg.setLogId(m.getLogId());
+				syncPubMsg.setType("syncPub");
+	
+				Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
+				syncPubMsg = clientBackup.sendReceive(syncPubMsg);
+				System.out.println(syncPubMsg.getContent());
+	
+			} catch (Exception e) {
+				System.out.println("Cannot sync with backup - publish service");
+			}
+		}
 
 		Message msg = new MessageImpl();
 		msg.setContent(m.getContent()); // conteudo == posso verificar o tipo de conteudo
@@ -73,10 +74,8 @@ public class PubCommand implements PubSubCommand {
 		response.setType("pub_ack");
 
 
-		System.out.println("Logs pub");
-
 		Iterator<Message> it = log.iterator();
-		System.out.println("logs até o momento");
+		System.out.println("PUB: logs até o momento");
 		while(it.hasNext()){
 			Message aux = it.next();
 			System.out.print(aux.getLogId() + " " + aux.getContent() + " | ");

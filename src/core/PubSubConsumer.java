@@ -61,18 +61,25 @@ public class PubSubConsumer<S extends Socket> extends GenericConsumer<S> {
                 response = new MessageImpl();
                 response.setType("backup");
                 response.setContent(secondaryServer + ":" + secondaryPort);
-                
+                System.out.println("q putaria es esta");
+
             } else {
                 if (!msg.getType().equals("notify") && !msg.getType().startsWith("sync"))
                     msg.setLogId(uniqueLogId);
+                    
+                if(secMessage[0].equals("wakeup")){
+                    System.out.println("entrei aqui");
+                    this.secActivity = true;
+                    msg.setType(secMessage[1]);
+                    System.out.println(msg.getType());
+                }
 
-                response = commands.get(msg.getType()).execute(msg, log, subscribers, isPrimary, secondaryServer, secondaryPort, secActivity);
+               response = commands.get(msg.getType()).execute(msg, log, subscribers, isPrimary, secondaryServer, secondaryPort, secActivity);
 
                 if (!msg.getType().equals("notify")) //&& !msg.getType().startsWith("sync"))
                     uniqueLogId = msg.getLogId();
 
             }
-
 
             ObjectOutputStream out = new ObjectOutputStream(str.getOutputStream());
             out.writeObject(response);

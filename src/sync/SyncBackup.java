@@ -13,46 +13,41 @@ public class SyncBackup implements PubSubCommand {
 
     @Override
     public Message execute(Message m, SortedSet<Message> log, Set<String> subscribers, boolean isPrimary,
-                           String sencondaryServerAddress, int secondaryServerPort, boolean secActivity) {
+            String sencondaryServerAddress, int secondaryServerPort, boolean secActivity) {
+
+        // secActivity = true;
+        System.out.println("entrei na porra do sync backup");
+
+        // start many clients to send all existing log messages
+        // for the subscribed user
         if (!log.isEmpty()) {
-            Iterator<Message> it = log.iterator();
-            while (it.hasNext()) {                
+            Iterator<Message> it = log.iterator(); // manda tudo do log pra mim saber oq ta rolando
+                                                   // accquire == lock == acesso exclusivo em x
+                                                   // release == unlock == libera o acesso a x
+
+            // como vou bloquead o acesso? dentro de pub (string personalisada pro acquire)?
+            while (it.hasNext()) {
+                Message cMsg = null;
                 try {
+                    Client client = new Client(sencondaryServerAddress, secondaryServerPort);
                     Message msg = it.next();
-                    Message syncPubMsg = new MessageImpl();
-                    syncPubMsg.setBrokerId(msg.getBrokerId());
-                    syncPubMsg.setContent(msg.getContent());
-                    syncPubMsg.setLogId(msg.getLogId());
-                    syncPubMsg.setType("syncPub");
+                    Message aux = new MessageImpl();
+                    System.out.println("olha merda: " + msg.getType());
 
-                    Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
-                    syncPubMsg = clientBackup.sendReceive(syncPubMsg);
+                    if(msg.getType().equals("sub") || msg.getType().equals("syncSub"))
+                        aux.setType("syncSub");
+                    else if(msg.getType().equals("pub") || msg.getType().equals("syncPub"))
+                        aux.setType("syncPub");
+                    else if(msg.getType().equals("unlock"))
+                        aux.setType("syncPub");
 
-                } catch (Exception e) {}
+                    aux.setContent(msg.getContent());
+                    aux.setLogId(msg.getLogId());
+                    aux.setBrokerId(m.getBrokerId());
+                    cMsg = client.sendReceive(aux);
+                } catch (Exception e) { }
             }
         }
-
-        System.out.println("SUBSCRIBERSS");
-        if (!subscribers.isEmpty()) {
-            Iterator<String> it = subscribers.iterator();
-            while (it.hasNext()) {                
-                try {
-                    String msg = it.next();
-                    Message syncPubMsg = new MessageImpl();
-                    syncPubMsg.setBrokerId(secondaryServerPort);
-                    syncPubMsg.setContent(msg);
-                    syncPubMsg.setType("syncSub");
-                    System.out.println(msg);
-
-                    Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
-                    syncPubMsg = clientBackup.sendReceive(syncPubMsg);
-
-                } catch (Exception e) {}
-            }
-        }
-
-
-        secActivity = true;
 
         Message response = new MessageImpl();
         response.setLogId(m.getLogId());

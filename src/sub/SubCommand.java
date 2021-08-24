@@ -26,21 +26,23 @@ public class SubCommand implements PubSubCommand {
 			response.setLogId(logId);
 			m.setLogId(logId);
 
-            try {
-                // sincronizar com o broker backup
-                Message syncSubMsg = new MessageImpl();
-                syncSubMsg.setBrokerId(m.getBrokerId());
-                syncSubMsg.setContent(m.getContent());
-                syncSubMsg.setLogId(m.getLogId());
-                syncSubMsg.setType("syncSub");
-
-                Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
-                syncSubMsg = clientBackup.sendReceive(syncSubMsg);
-                System.out.println(syncSubMsg.getContent());
-
-            } catch (Exception e) {
-                System.out.println("Cannot sync with backup - subscribe service");
-            }
+			if(secActivity){
+				try {
+					// sincronizar com o broker backup
+					Message syncSubMsg = new MessageImpl();
+					syncSubMsg.setBrokerId(m.getBrokerId());
+					syncSubMsg.setContent(m.getContent());
+					syncSubMsg.setLogId(m.getLogId());
+					syncSubMsg.setType("syncSub");
+	
+					Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
+					syncSubMsg = clientBackup.sendReceive(syncSubMsg);
+					System.out.println(syncSubMsg.getContent());
+	
+				} catch (Exception e) {
+					System.out.println("Cannot sync with backup - subscribe service");
+				}
+			}
 
 			subscribers.add(m.getContent());
 			log.add(m);

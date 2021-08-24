@@ -17,8 +17,9 @@ public class SyncPubCommand implements PubSubCommand {
 
         response.setLogId(m.getLogId());
 
-
         log.add(m);
+
+        System.out.println("LOG ADICIONADO: " + m.getContent());
 
         response.setContent("Message published on backup: " + m.getContent());
         response.setType("pubsync_ack");

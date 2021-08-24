@@ -25,20 +25,22 @@ public class UnsubCommand implements PubSubCommand {
       response.setLogId(logId);
       m.setLogId(logId);
 
-      try {
-        // sincronizar com o broker backup
-        Message syncUnsubMsg = new MessageImpl();
-        syncUnsubMsg.setBrokerId(m.getBrokerId());
-        syncUnsubMsg.setContent(m.getContent());
-        syncUnsubMsg.setLogId(m.getLogId());
-        syncUnsubMsg.setType("syncUnsub");
-
-        Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
-        syncUnsubMsg = clientBackup.sendReceive(syncUnsubMsg);
-        System.out.println(syncUnsubMsg.getContent());
-
-      } catch (Exception e) {
-        System.out.println("Cannot sync with backup - unsubscribe service");
+      if(secActivity){
+        try {
+          // sincronizar com o broker backup
+          Message syncUnsubMsg = new MessageImpl();
+          syncUnsubMsg.setBrokerId(m.getBrokerId());
+          syncUnsubMsg.setContent(m.getContent());
+          syncUnsubMsg.setLogId(m.getLogId());
+          syncUnsubMsg.setType("syncUnsub");
+  
+          Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
+          syncUnsubMsg = clientBackup.sendReceive(syncUnsubMsg);
+          System.out.println(syncUnsubMsg.getContent());
+  
+        } catch (Exception e) {
+          System.out.println("Cannot sync with backup - unsubscribe service");
+        }
       }
 
       subscribers.remove(m.getContent());
