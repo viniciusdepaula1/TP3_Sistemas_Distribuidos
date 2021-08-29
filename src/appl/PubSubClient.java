@@ -69,10 +69,15 @@ public class PubSubClient { // recebe e publica
 			subscriber = new Client(this.brokerIp, this.brokerPort);
 			response = subscriber.sendReceive(msgBroker);
 		} catch (Exception e) {
-			//TODO: handle exception
+			System.out.println("entrei");
+			try {
+				toSecundary(msgBroker.getType(), msgBroker.getContent());
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 		}
 
-		System.out.println(response.getContent());
+		//System.out.println(response.getContent());
 
 		if (response.getType().equals("backup")) {
 			String brokerAddress = response.getContent().split(":")[0];
@@ -100,7 +105,12 @@ public class PubSubClient { // recebe e publica
 			subscriber = new Client(this.brokerIp, this.brokerPort);
 			response = subscriber.sendReceive(msgBroker);
 		} catch (Exception e) {
-			//TODO: handle exception
+			System.out.println("entrei");
+			try {
+				toSecundary(msgBroker.getType(), msgBroker.getContent());
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 		}
 
 
@@ -210,9 +220,17 @@ public class PubSubClient { // recebe e publica
 			publisher = new Client(this.brokerIp, this.brokerPort);
 			received = publisher.sendReceive(msgPub);			
 		} catch (Exception e) {
-			//TODO: handle exception
+			System.out.println("entrei");
+			try {
+				toSecundary(msgPub.getType(), msgPub.getContent());
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
+
+		//nao mecho
 		if (received.getType().equals("backup")) {
             String brokerAddress = received.getContent().split(":")[0];
             int brokerPort = Integer.parseInt(received.getContent().split(":")[1]);

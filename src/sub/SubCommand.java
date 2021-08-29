@@ -41,6 +41,7 @@ public class SubCommand implements PubSubCommand {
 	
 				} catch (Exception e) {
 					System.out.println("Cannot sync with backup - subscribe service");
+					secActivity = false;
 				}
 			}
 

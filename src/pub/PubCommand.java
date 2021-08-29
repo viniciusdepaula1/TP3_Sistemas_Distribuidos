@@ -17,6 +17,7 @@ public class PubCommand implements PubSubCommand {
 			String sencondaryServerAddress, int secondaryServerPort, boolean secActivity) {
 
 		Message response = new MessageImpl();
+		Boolean secStatus = secActivity;
 		int logId = m.getLogId();
 		logId++;
 
@@ -24,21 +25,22 @@ public class PubCommand implements PubSubCommand {
 		m.setLogId(logId);
 		log.add(m);
 
-		if(secActivity) {
+		if (secActivity) {
 			try {
 				// sincronizar com o broker backup
 				Message syncPubMsg = new MessageImpl();
 				syncPubMsg.setBrokerId(m.getBrokerId());
-				syncPubMsg.setContent(m.getContent());
+				syncPubMsg.setContent("notify" + " " + m.getContent());
 				syncPubMsg.setLogId(m.getLogId());
 				syncPubMsg.setType("syncPub");
-	
+
 				Client clientBackup = new Client(sencondaryServerAddress, secondaryServerPort);
 				syncPubMsg = clientBackup.sendReceive(syncPubMsg);
 				System.out.println(syncPubMsg.getContent());
-	
+
 			} catch (Exception e) {
 				System.out.println("Cannot sync with backup - publish service");
+				secStatus = false;
 			}
 		}
 
@@ -48,22 +50,48 @@ public class PubCommand implements PubSubCommand {
 		msg.setType("notify");
 
 		CopyOnWriteArrayList<String> subscribersCopy = new CopyOnWriteArrayList<String>(); // broker vira cliente e
-																							// manda notificação pra
-																							// geral
-		subscribersCopy.addAll(subscribers);
-		for (String aux : subscribersCopy) {
-			String[] ipAndPort = aux.split(":");
-			Message cMsg = null;
+		subscribersCopy.addAll(subscribers); // manda notificação pra
+												// geral
 
-			try {
-				Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
-				msg.setBrokerId(m.getBrokerId()); // manda e espera
-				cMsg = client.sendReceive(msg); // se não recebeu vai ser null e ele tira da lista de sub
-			} catch (Exception e) { }
+		if(secStatus){
+			Integer length = subscribersCopy.size() / 2;
+			System.out.println("Tamanho: " + length);
 
-			if (cMsg == null) {
-				System.out.println("Publish service is not proceed... " + msg.getContent());
-				subscribers.remove(aux);
+			for (int i = 0; i < length; i++) {
+				System.out.println(subscribersCopy.get(i));
+				String aux = subscribersCopy.get(i);
+				String[] ipAndPort = aux.split(":");
+				Message cMsg = null;
+
+				try {
+					Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
+					msg.setBrokerId(m.getBrokerId()); // manda e espera
+					cMsg = client.sendReceive(msg); // se não recebeu vai ser null e ele tira da lista de sub
+				} catch (Exception e) { }
+	
+				if (cMsg == null) {
+					System.out.println("Publish service is not proceed... " + msg.getContent());
+					subscribers.remove(aux);
+				}
+			}
+	
+			System.out.println("FIM");
+		
+		} else {
+			for (String aux : subscribersCopy) {
+				String[] ipAndPort = aux.split(":");
+				Message cMsg = null;
+	
+				try {
+					Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
+					msg.setBrokerId(m.getBrokerId()); // manda e espera
+					cMsg = client.sendReceive(msg); // se não recebeu vai ser null e ele tira da lista de sub
+				} catch (Exception e) { }
+	
+				if (cMsg == null) {
+					System.out.println("Publish service is not proceed... " + msg.getContent());
+					subscribers.remove(aux);
+				}
 			}
 		}
 
@@ -73,10 +101,9 @@ public class PubCommand implements PubSubCommand {
 		response.setContent("Message published: " + m.getContent());
 		response.setType("pub_ack");
 
-
 		Iterator<Message> it = log.iterator();
 		System.out.println("PUB: logs até o momento");
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			Message aux = it.next();
 			System.out.print(aux.getLogId() + " " + aux.getContent() + " | ");
 		}

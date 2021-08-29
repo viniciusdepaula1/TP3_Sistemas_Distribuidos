@@ -21,7 +21,7 @@ public class PubSubConsumer<S extends Socket> extends GenericConsumer<S> {
     private boolean isPrimary;
     private String secondaryServer;
     private int secondaryPort;
-    private boolean secActivity = false;
+    public boolean secActivity = false;
 
     public PubSubConsumer(GenericResource<S> re, boolean isPrimary, String secondaryServer, int secondaryPort) {
         super(re);
@@ -49,7 +49,11 @@ public class PubSubConsumer<S extends Socket> extends GenericConsumer<S> {
 
             if(secMessage[0].equals("sec")){
                 System.out.println("entrei sec");
-                this.isPrimary = !isPrimary;
+                if(this.isPrimary == false){
+                    System.out.println("entrei false");
+                    this.isPrimary = true;
+                } 
+
                 msg.setType(secMessage[1]);
             }
 

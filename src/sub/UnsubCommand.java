@@ -40,6 +40,7 @@ public class UnsubCommand implements PubSubCommand {
   
         } catch (Exception e) {
           System.out.println("Cannot sync with backup - unsubscribe service");
+          secActivity = false;
         }
       }
 

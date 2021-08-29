@@ -16,7 +16,7 @@ public class SyncBackup implements PubSubCommand {
             String sencondaryServerAddress, int secondaryServerPort, boolean secActivity) {
 
         // secActivity = true;
-        System.out.println("entrei na porra do sync backup");
+        System.out.println("entrei no sync backup");
 
         // start many clients to send all existing log messages
         // for the subscribed user
@@ -32,7 +32,7 @@ public class SyncBackup implements PubSubCommand {
                     Client client = new Client(sencondaryServerAddress, secondaryServerPort);
                     Message msg = it.next();
                     Message aux = new MessageImpl();
-                    System.out.println("olha merda: " + msg.getType());
+                    System.out.println("logs: " + msg.getType());
 
                     if(msg.getType().equals("sub") || msg.getType().equals("syncSub"))
                         aux.setType("syncSub");

@@ -38,6 +38,7 @@ public class UnlockCommand implements PubSubCommand {
 	
 			} catch (Exception e) {
 				System.out.println("Cannot sync with backup - unlock service");
+				secActivity = false;
 			}
 		}
 
