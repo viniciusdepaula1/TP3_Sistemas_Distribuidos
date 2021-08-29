@@ -23,13 +23,9 @@ public class NotifyCommand implements PubSubCommand{
 		String messageContent[] = m.getContent().split(" ");
 
 		synchronized (log){					
-			if (!log.contains(m)) {
-				log.add(m);
-			}
-
-			if(messageContent[0].length() == 6){	//if Unlock
-				log.notify();			
-			}
+			log.add(m);
+			
+			log.notifyAll();				
 		}
 
 		//System.out.println("Number of Log itens of an Observer " + m.getBrokerId() + " : " + log.size());

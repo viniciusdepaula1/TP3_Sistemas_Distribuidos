@@ -9,6 +9,7 @@ import core.MessageImpl;
 import core.Server;
 import core.client.Client;
 import java.util.Set;
+import java.util.SortedSet;
 
 public class PubSubClient { // recebe e publica
 
@@ -123,7 +124,7 @@ public class PubSubClient { // recebe e publica
 	}
 
 	public String verificaVez(int myLogId, String myVar) throws InterruptedException {
-		List<Message> logs = this.observer.getLogMessages();
+		SortedSet<Message> logs = this.observer.getLogMessages();
 
 		synchronized (logs) {
 			while (verifyLogs(logs, myLogId, myVar) == false) {
@@ -161,7 +162,7 @@ public class PubSubClient { // recebe e publica
 		// Message received = publisher.sendReceive(msgUnlock);
 	}
 
-	public boolean verifyLogs(List<Message> logs, int myLogId, String myVar) { // verifico a quantidade de locks e
+	public boolean verifyLogs(SortedSet<Message> logs, int myLogId, String myVar) { // verifico a quantidade de locks e
 																				// unlocks no log para verificar se
 																				// posso usar
 		// System.out.println("entrei verify logs");
@@ -189,10 +190,9 @@ public class PubSubClient { // recebe e publica
 			}
 		}
 
-		// System.out.println("numero de locs: " + locks + " numero de unlocks: " +
-		// unlocks);
+		System.out.println("numero de locs: " + locks + " numero de unlocks: " + unlocks);
 
-		if (locks <= unlocks)
+		if (locks == unlocks)
 			return true;
 
 		return false;
@@ -267,7 +267,7 @@ public class PubSubClient { // recebe e publica
 		}
 	}
 
-    public List<Message> getLogMessages() {
+    public SortedSet<Message> getLogMessages() {
         return observer.getLogMessages();
     }
 

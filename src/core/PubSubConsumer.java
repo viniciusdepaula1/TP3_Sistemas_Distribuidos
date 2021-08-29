@@ -100,11 +100,8 @@ public class PubSubConsumer<S extends Socket> extends GenericConsumer<S> {
 
     }
 
-    public List<Message> getMessages() {
-        CopyOnWriteArrayList<Message> logCopy = new CopyOnWriteArrayList<Message>();
-        logCopy.addAll(log);
-
-        return logCopy;
+    public SortedSet<Message> getMessages() {
+        return log;
     }
 
 }

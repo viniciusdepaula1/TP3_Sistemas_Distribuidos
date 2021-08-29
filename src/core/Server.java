@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.SortedSet;
 
 
 //this server represents the producer in a producer/consumer strategy
@@ -105,7 +106,7 @@ public class Server {
         //System.out.println("verifying consumer.... " + consumer.isInterrupted());
     }
 
-    public List<Message> getLogMessages() {
+    public SortedSet<Message> getLogMessages() {
         try {
             return ((PubSubConsumer<Socket>) consumer).getMessages();
         } catch (Exception e) {
