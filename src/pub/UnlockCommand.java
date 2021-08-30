@@ -16,6 +16,7 @@ public class UnlockCommand implements PubSubCommand {
 			String sencondaryServerAddress, int secondaryServerPort, boolean secActivity) {
 
 		Message response = new MessageImpl();
+		Boolean secStatus = secActivity;
 		int logId = m.getLogId();
 		logId++;
 
@@ -28,7 +29,7 @@ public class UnlockCommand implements PubSubCommand {
 				// sincronizar com o broker backup
 				Message syncPubMsg = new MessageImpl();
 				syncPubMsg.setBrokerId(m.getBrokerId());
-				syncPubMsg.setContent(m.getContent());
+				syncPubMsg.setContent("notify" + " " + m.getContent());
 				syncPubMsg.setLogId(m.getLogId());
 				syncPubMsg.setType("syncPub");
 	
@@ -38,7 +39,7 @@ public class UnlockCommand implements PubSubCommand {
 	
 			} catch (Exception e) {
 				System.out.println("Cannot sync with backup - unlock service");
-				secActivity = false;
+				secStatus = false;
 			}
 		}
 
@@ -51,21 +52,48 @@ public class UnlockCommand implements PubSubCommand {
 																							// manda notificação pra
 																							// geral
 		subscribersCopy.addAll(subscribers);
-		for (String aux : subscribersCopy) {
-			String[] ipAndPort = aux.split(":");
-			Message cMsg = null;
 
-			try {
-				Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
-				msg.setBrokerId(m.getBrokerId()); // manda e espera
-				cMsg = client.sendReceive(msg); // se não recebeu vai ser null e ele tira da lista de sub
-			} catch (Exception e) { }
-			
-			if (cMsg == null){
-				System.out.println("Unlock service is not proceed... " + msg.getContent());
-				subscribers.remove(aux);
+
+		if(secStatus){
+			Integer length = subscribersCopy.size() / 2;
+			System.out.println("UNLOCK Notify compartilhado > Principal");
+
+			for (int i = 0; i < length; i++) {
+				System.out.println(subscribersCopy.get(i));
+				String aux = subscribersCopy.get(i);
+				String[] ipAndPort = aux.split(":");
+				Message cMsg = null;
+
+				try {
+					Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
+					msg.setBrokerId(m.getBrokerId()); // manda e espera
+					cMsg = client.sendReceive(msg); // se não recebeu vai ser null e ele tira da lista de sub
+				} catch (Exception e) { }
+	
+				if (cMsg == null) {
+					System.out.println("Publish service is not proceed... " + msg.getContent());
+					subscribers.remove(aux);
+				}
 			}
 	
+			System.out.println("FIM");
+		
+		} else {
+			for (String aux : subscribersCopy) {
+				String[] ipAndPort = aux.split(":");
+				Message cMsg = null;
+	
+				try {
+					Client client = new Client(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
+					msg.setBrokerId(m.getBrokerId()); // manda e espera
+					cMsg = client.sendReceive(msg); // se não recebeu vai ser null e ele tira da lista de sub
+				} catch (Exception e) { }
+	
+				if (cMsg == null) {
+					System.out.println("Publish service is not proceed... " + msg.getContent());
+					subscribers.remove(aux);
+				}
+			}
 		}
 
 		// o meu consumidor vai trabalhar sendo notificado (eu sou cliente)

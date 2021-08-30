@@ -55,7 +55,7 @@ public class PubCommand implements PubSubCommand {
 
 		if(secStatus){
 			Integer length = subscribersCopy.size() / 2;
-			System.out.println("Tamanho: " + length);
+			System.out.println("UNLOCK Notify compartilhado > Principal");
 
 			for (int i = 0; i < length; i++) {
 				System.out.println(subscribersCopy.get(i));

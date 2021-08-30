@@ -23,7 +23,7 @@ public class SyncPubCommand implements PubSubCommand {
         
         if(secMessage[0].equals("notify")) {
             m.setContent(secMessage[1] + " " + secMessage[2]);
-         
+
             Message msg = new MessageImpl();
             msg.setContent(m.getContent()); // conteudo == posso verificar o tipo de conteudo
             msg.setLogId(m.getLogId());
@@ -34,7 +34,7 @@ public class SyncPubCommand implements PubSubCommand {
             Integer length = subscribersCopy.size()/2;
     
             for(int i = length; i < subscribersCopy.size(); i++){
-                System.out.println(subscribersCopy.get(i));
+                System.out.println("Enviando notify para: " + subscribersCopy.get(i));
 				String aux = subscribersCopy.get(i);
 				String[] ipAndPort = aux.split(":");
 				Message cMsg = null;
@@ -51,7 +51,7 @@ public class SyncPubCommand implements PubSubCommand {
 				}
             }
 
-            System.out.println("FIM");
+            System.out.println("Fim notify compartilhado");
         }
                 
         log.add(m);
