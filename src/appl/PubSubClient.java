@@ -86,9 +86,7 @@ public class PubSubClient { // recebe e publica
 			try {
 				subscriber = new Client(brokerAddress, brokerPort);
 				subscriber.sendReceive(msgBroker);				
-			} catch (Exception e) {
-				//TODO: handle exception
-			}
+			} catch (Exception e) { }
 		}
 	}
 
@@ -121,9 +119,7 @@ public class PubSubClient { // recebe e publica
  			try {
 				subscriber = new Client(brokerAddress, brokerPort);
 				subscriber.sendReceive(msgBroker);				
-			} catch (Exception e) {
-				//TODO: handle exception
-			}
+			} catch (Exception e) {	}
         }
 	}
 
@@ -163,7 +159,6 @@ public class PubSubClient { // recebe e publica
 			try {
 				toSecundary(msgUnlock.getType(), msgUnlock.getContent());
 			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -224,7 +219,6 @@ public class PubSubClient { // recebe e publica
 			try {
 				toSecundary(msgPub.getType(), msgPub.getContent());
 			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -238,9 +232,7 @@ public class PubSubClient { // recebe e publica
 			try {
 				publisher = new Client(brokerAddress, brokerPort);
 				publisher.sendReceive(msgPub);				
-			} catch (Exception e) {
-				//TODO: handle exception
-			}
+			} catch (Exception e) {	}
 
         }
 

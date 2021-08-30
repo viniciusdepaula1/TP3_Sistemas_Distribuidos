@@ -65,7 +65,6 @@ public class PubSubConsumer<S extends Socket> extends GenericConsumer<S> {
                 response = new MessageImpl();
                 response.setType("backup");
                 response.setContent(secondaryServer + ":" + secondaryPort);
-                System.out.println("q putaria es esta");
 
             } else {
                 if (!msg.getType().equals("notify") && !msg.getType().startsWith("sync"))

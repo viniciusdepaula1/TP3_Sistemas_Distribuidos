@@ -44,9 +44,7 @@ public class Broker {
             try {
                 Client subscriber = new Client(secondAddress, secondPort);
                 subscriber.sendReceive(msgBroker);
-            } catch (Exception e) {
-    
-            }
+            } catch (Exception e) { }
         }
 
         System.out.print("Shutdown the broker (Y|N)?: ");
