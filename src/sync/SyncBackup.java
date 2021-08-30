@@ -21,11 +21,7 @@ public class SyncBackup implements PubSubCommand {
         // start many clients to send all existing log messages
         // for the subscribed user
         if (!log.isEmpty()) {
-            Iterator<Message> it = log.iterator(); // manda tudo do log pra mim saber oq ta rolando
-                                                   // accquire == lock == acesso exclusivo em x
-                                                   // release == unlock == libera o acesso a x
-
-            // como vou bloquead o acesso? dentro de pub (string personalisada pro acquire)?
+            Iterator<Message> it = log.iterator(); 
             while (it.hasNext()) {
                 Message cMsg = null;
                 try {
